@@ -64,7 +64,8 @@ module.exports = (region, resultsCallback) => {
                             title: plugin.title,
                             region: results[r].region || 'Global',
                             status: statusWord,
-                            message: results[r].message
+                            message: results[r].message,
+                            resource: results[r].resource || 'No specific resource'
                         };
 
                         securityResults.push(object);                    

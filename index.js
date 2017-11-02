@@ -3,7 +3,7 @@ var AWS = require('aws-sdk');
 var plugins = require('./exports.js');
 var collector = require('./collect.js');
 
-module.exports = (resultsCallback) => {
+module.exports = (region, resultsCallback) => {
     let credProvider = new AWS.CredentialProviderChain();
     credProvider.providers.push(new AWS.EnvironmentCredentials('AWS'));
     credProvider.providers.push(new AWS.SharedIniFileCredentials({profile: 'default'}));
@@ -12,7 +12,7 @@ module.exports = (resultsCallback) => {
             accessKeyId: credentialObj.accessKeyId,
             secretAccessKey: credentialObj.secretAccessKey,
             sessionToken: credentialObj.sessionToken,
-            region: 'eu-west-1'
+            region
         };
 
         if (!AWSConfig || !AWSConfig.accessKeyId) {

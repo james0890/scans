@@ -54,6 +54,8 @@ module.exports = (region, resultsCallback) => {
         console.log('INFO: API calls determined.');
         console.log('INFO: Collecting AWS metadata. This may take several minutes...');
 
+        var securityResults = [];
+
         // STEP 2 - Collect API Metadata from AWS
         collector(AWSConfig, {api_calls: apiCalls, skip_regions: skipRegions}, function(err, collection) {
             if (err || !collection) return console.log('ERROR: Unable to obtain API metadata');
@@ -74,12 +76,22 @@ module.exports = (region, resultsCallback) => {
                         } else {
                             statusWord = 'UNKNOWN';
                         }
+
+                        const object = {
+                            category: plugin.category,
+                            title: plugin.title,
+                            region: results[r].region || 'Global',
+                            status: statusWord,
+                            message: results[r].message
+                        };
+
+                        securityResults.push(object);                    
                     }
 
                     callback();
                 });
             }, () => {
-                resultsCallback(collection);
+                resultsCallback(securityResults);
             });
         });
     });

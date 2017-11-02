@@ -3,13 +3,15 @@ var AWS = require('aws-sdk');
 var plugins = require('./exports.js');
 var collector = require('./collect.js');
 
-module.exports = (region) => {
-    let creds = AWS.Credentials();
-    creds.getPromise().then(() => {
+module.exports = (region, resultsCallback) => {
+    let credProvider = new AWS.CredentialProviderChain();
+    credProvider.providers.push(new AWS.EnvironmentCredentials('AWS'));
+    credProvider.providers.push(new AWS.SharedIniFileCredentials({profile: 'default'}));
+    credProvider.resolvePromise().then(credentialObj => {
         var AWSConfig = {
-            accessKeyId: creds.accessKeyId,
-            secretAccessKey: creds.secretAccessKey,
-            sessionToken: creds.sessionToken,
+            accessKeyId: credentialObj.accessKeyId,
+            secretAccessKey: credentialObj.secretAccessKey,
+            sessionToken: credentialObj.sessionToken,
             region
         };
 
@@ -17,7 +19,21 @@ module.exports = (region) => {
             return console.log('ERROR: Invalid AWSConfig');
         }
 
-        var skipRegions = [];
+        var skipRegions = [
+            'us-east-1',
+            'us-east-2',
+            'us-west-1',
+            'us-west-2',
+            'ca-central-1',
+            'eu-west-2',
+            'eu-central-1',
+            'ap-northeast-1',
+            'ap-northeast-2',
+            'ap-southeast-1',
+            'ap-southeast-2',
+            'ap-south-1',
+            'sa-east-1'
+        ];
 
         // Custom settings - place plugin-specific settings here
         var settings = {};
@@ -45,8 +61,8 @@ module.exports = (region) => {
             console.log('INFO: Metadata collection complete. Analyzing...');
             console.log('INFO: Analysis complete. Scan report to follow...\n');
 
-            async.forEachOfLimit(plugins, 10, function(plugin, key, callback) {
-                plugin.run(collection, settings, function(err, results) {
+            async.forEachOfLimit(plugins, 10, (plugin, key, callback) => {
+                plugin.run(collection, settings, (err, results) => {
                     for (r in results) {
                         var statusWord;
                         if (results[r].status === 0) {
@@ -58,18 +74,13 @@ module.exports = (region) => {
                         } else {
                             statusWord = 'UNKNOWN';
                         }
-                        
-                        console.log(plugin.category + '\t' + plugin.title + '\t' +
-                                    (results[r].resource || 'N/A') + '\t' +
-                                    (results[r].region || 'Global') + '\t\t' +
-                                    statusWord + '\t' + results[r].message);
                     }
 
-                    callback(err);
+                    callback();
                 });
-            }, function(err){
-                if (err) return console.log(err);
+            }, () => {
+                resultsCallback(collection);
             });
         });
     });
-}
+};

@@ -4,11 +4,12 @@ var plugins = require('./exports.js');
 var collector = require('./collect.js');
 
 module.exports = (region) => {
-    AWS.Credentials.getPromise().then(() => {
+    let creds = AWS.Credentials();
+    creds.getPromise().then(() => {
         var AWSConfig = {
-            accessKeyId: AWS.Credentials.accessKeyId,
-            secretAccessKey: AWS.Credentials.secretAccessKey,
-            sessionToken: AWS.Credentials.sessionToken,
+            accessKeyId: creds.accessKeyId,
+            secretAccessKey: creds.secretAccessKey,
+            sessionToken: creds.sessionToken,
             region
         };
 

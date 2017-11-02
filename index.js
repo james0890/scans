@@ -12,7 +12,7 @@ module.exports = (resultsCallback) => {
             accessKeyId: credentialObj.accessKeyId,
             secretAccessKey: credentialObj.secretAccessKey,
             sessionToken: credentialObj.sessionToken,
-            region
+            region: 'eu-west-1'
         };
 
         if (!AWSConfig || !AWSConfig.accessKeyId) {
@@ -20,11 +20,8 @@ module.exports = (resultsCallback) => {
         }
 
         var skipRegions = [];
-
-        // Custom settings - place plugin-specific settings here
         var settings = {};
 
-        // STEP 1 - Obtain API calls to make
         console.log('INFO: Determining API calls to make...');
 
         var apiCalls = [];
@@ -42,7 +39,6 @@ module.exports = (resultsCallback) => {
 
         var securityResults = [];
 
-        // STEP 2 - Collect API Metadata from AWS
         collector(AWSConfig, {api_calls: apiCalls, skip_regions: skipRegions}, function(err, collection) {
             if (err || !collection) return console.log('ERROR: Unable to obtain API metadata');
 

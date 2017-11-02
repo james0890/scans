@@ -3,7 +3,7 @@ var AWS = require('aws-sdk');
 var plugins = require('./exports.js');
 var collector = require('./collect.js');
 
-module.exports = (region, resultsCallback) => {
+module.exports = (resultsCallback) => {
     let credProvider = new AWS.CredentialProviderChain();
     credProvider.providers.push(new AWS.EnvironmentCredentials('AWS'));
     credProvider.providers.push(new AWS.SharedIniFileCredentials({profile: 'default'}));
@@ -19,21 +19,7 @@ module.exports = (region, resultsCallback) => {
             return console.log('ERROR: Invalid AWSConfig');
         }
 
-        var skipRegions = [
-            'us-east-1',
-            'us-east-2',
-            'us-west-1',
-            'us-west-2',
-            'ca-central-1',
-            'eu-west-2',
-            'eu-central-1',
-            'ap-northeast-1',
-            'ap-northeast-2',
-            'ap-southeast-1',
-            'ap-southeast-2',
-            'ap-south-1',
-            'sa-east-1'
-        ];
+        var skipRegions = [];
 
         // Custom settings - place plugin-specific settings here
         var settings = {};
